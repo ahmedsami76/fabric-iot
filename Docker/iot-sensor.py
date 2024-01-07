@@ -21,17 +21,21 @@ CONNECTION_STRING = f"HostName={IOT_HUB_NAME}.azure-devices.net;DeviceId={DEVICE
 # Initialize the last_c2d_message variable
 last_c2d_message = None
 
+
 async def receive_c2d_message(device_client):
     global last_c2d_message
     print("Listening for C2D messages...")
     while True:
+        c2d_message = await device_client.receive_message()
+        data = c2d_message.data.decode('utf-8')
+        print(f"Received C2D message: {data}")
         try:
-            c2d_message = await device_client.receive_message()
-            data = c2d_message.data.decode('utf-8')
-            print(f"Received C2D message: {data}")
-            last_c2d_message = json.loads(data)
-        except Exception as e:
-            print(f"Error when receiving C2D message: {e}")
+            last_c2d_message = json.loads(data)  # Try parsing the message as JSON
+        except json.JSONDecodeError:
+            print(f"Error when receiving C2D message: Invalid JSON - {data}")
+            # You can decide how to handle non-JSON messages here
+            # For example, you could store them as plain text:
+            last_c2d_message = data
 
 
 async def main():
@@ -58,9 +62,14 @@ async def main():
                 "battery_level": random.uniform(0, 100)
             }
             telemetry_data["timestamp"] = datetime.utcnow().isoformat() + "Z"
-
-            # Include the last received C2D message in the telemetry data
-            telemetry_data["c2d_message"] = last_c2d_message if last_c2d_message is not None else "No message received yet."
+        # Handle the inclusion of the last received C2D message in the telemetry data  
+            if last_c2d_message is not None:  
+                if isinstance(last_c2d_message, str):  
+                    telemetry_data["c2d_message"] = last_c2d_message  # Plain text message  
+                else:  
+                    telemetry_data["c2d_message"] = last_c2d_message  # JSON message  
+            else:  
+                telemetry_data["c2d_message"] = "No message received yet." 
 
             message = Message(json.dumps(telemetry_data))
             message.content_encoding = "utf-8"
