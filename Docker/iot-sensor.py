@@ -14,6 +14,13 @@ SHARED_ACCESS_KEY = os.getenv('SHARED_ACCESS_KEY')
 # Construct the IoT Hub connection string using the environment variables
 CONNECTION_STRING = f"HostName={IOT_HUB_NAME}.azure-devices.net;DeviceId={DEVICE_ID};SharedAccessKey={SHARED_ACCESS_KEY}"
 
+async def receive_c2d_message(device_client):  
+    print("Listening for C2D messages...")  
+    c2d_message = await device_client.receive_message()  # This call will block until a message is received  
+    data = c2d_message.data.decode('utf-8')  
+    print(f"Received C2D message: {data}")  
+    return json.loads(data)  # Assuming the C2D message is a JSON string  
+
 async def main():
     # Create instance of the device client using the authentication provider
     device_client = IoTHubDeviceClient.create_from_connection_string(CONNECTION_STRING)
@@ -36,6 +43,9 @@ async def main():
             }
             # Add a timestamp to the telemetry data (ISO 8601 format)  
             telemetry_data["timestamp"] = datetime.utcnow().isoformat() + "Z"  
+
+            # Include the last received C2D message in the telemetry data  
+            telemetry_data["c2d_message"] = last_c2d_message 
 
             message = Message(json.dumps(telemetry_data))
             message.content_encoding = "utf-8"
