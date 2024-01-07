@@ -5,10 +5,11 @@ I. Create Azure resources
 1. Create Azure IoT hub
 2. Create Iot with symmetric key auth
 3. Note the Hub name, device name and Device key
+4. create adls gen2 with a container name it "rawiot"
 
 II. Configure IoT hub
 1. In the Routes section create a route for the builtin endpoint for the device telemtry messages
-2. In the 
+2. In the Routes section create a route for the storage endpoint for the device telemtry messages sending to adlsgen2
 
 II. Create a Docker container for the sensor simulator
 1. create an image from the python code in the Docker folder
