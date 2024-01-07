@@ -10,6 +10,7 @@ I. Create Azure resources
 II. Configure IoT hub
 1. In the Routes section create a route for the builtin endpoint for the device telemtry messages
 2. In the Routes section create a route for the storage endpoint for the device telemtry messages sending to adlsgen2
+3. create another consumer group called "fabric-streaming"
 
 II. Create a Docker container for the sensor simulator
 1. create an image from the python code in the Docker folder
