@@ -25,10 +25,14 @@ async def receive_c2d_message(device_client):
     global last_c2d_message
     print("Listening for C2D messages...")
     while True:
-        c2d_message = await device_client.receive_message()
-        data = c2d_message.data.decode('utf-8')
-        print(f"Received C2D message: {data}")
-        last_c2d_message = json.loads(data)
+        try:
+            c2d_message = await device_client.receive_message()
+            data = c2d_message.data.decode('utf-8')
+            print(f"Received C2D message: {data}")
+            last_c2d_message = json.loads(data)
+        except Exception as e:
+            print(f"Error when receiving C2D message: {e}")
+
 
 async def main():
     # Create instance of the device client using the connection string
